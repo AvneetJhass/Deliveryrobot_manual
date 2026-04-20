@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delivery Robot Build Manual</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:#1a1a2e;--ink-mid:#4a4a6a;--ink-light:#8888aa;
+    --paper:#fafaf7;--paper-warm:#f5f3ec;--paper-card:#ffffff;
+    --accent:#e85d26;--accent-light:#fdf0ea;--accent-mid:#f4b08a;
+    --blue:#2557a7;--blue-light:#e8f0fb;--blue-border:#b5d4f4;
+    --teal:#0f6e56;--teal-light:#e1f5ee;--teal-border:#9fe1cb;
+    --amber:#7a4f0b;--amber-light:#fef6e4;--amber-border:#f4c97a;
+    --purple:#4a3b8c;--purple-light:#f0eefe;--purple-border:#c5bbf5;
+    --border:#e0ddd4;--radius:10px;
+    --font-head:'DM Serif Display',Georgia,serif;
+    --font-body:'DM Sans',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--font-body);background:var(--paper);color:var(--ink);font-size:15px;line-height:1.6;padding-bottom:80px;}
+  #progress-bar-wrap{position:fixed;top:0;left:0;right:0;height:3px;background:var(--border);z-index:1000;}
+  #progressFill{height:100%;width:0%;background:var(--accent);transition:width 0.3s ease;}
+  .page{max-width:820px;margin:0 auto;padding:40px 32px 60px;}
+
+  /* HEADER */
+  .header{background:var(--paper-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px 18px;margin-bottom:32px;}
+  .header-badge-row{margin-bottom:12px;}
+  .header-badge{display:inline-block;background:var(--accent);color:#fff;font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;padding:3px 10px;border-radius:3px;}
+  .header-title{font-family:var(--font-head);font-size:28px;color:var(--ink);font-weight:400;margin-bottom:4px;}
+  .header-title span{color:var(--accent);}
+  .header-subtitle{font-size:13px;color:var(--ink-mid);font-style:italic;margin-bottom:16px;}
+  .header-top-row{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:0;}
+  .meta-field{display:flex;flex-direction:column;gap:4px;}
+  .meta-field label{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);}
+  .meta-field input[type="text"]{border:none;border-bottom:1.5px solid var(--border);background:transparent;font-family:var(--font-body);font-size:14px;color:var(--ink);padding:5px 0;outline:none;width:100%;}
+  .meta-field input[type="text"]:focus{border-bottom-color:var(--accent);}
+
+  /* CALLOUT BOXES */
+  .intro-box{background:var(--blue-light);border:1px solid var(--blue-border);border-radius:8px;padding:14px 18px;margin-bottom:20px;font-size:13.5px;color:#0c447c;line-height:1.65;}
+  .intro-box strong{color:#185fa5;display:block;margin-bottom:4px;}
+  .one-rule-box{background:var(--ink);border-radius:8px;padding:18px 22px;margin-bottom:20px;}
+  .one-rule-box .title{font-family:var(--font-head);font-size:16px;color:var(--accent-mid);margin-bottom:6px;}
+  .one-rule-box p{font-size:14px;color:#e8e6e0;line-height:1.65;}
+  .one-rule-box .rule-main{font-size:16px;font-weight:600;color:#fff;margin:8px 0;}
+  .one-rule-box .rule-sub{font-size:13px;color:#aaa;}
+  .did-you-know{background:var(--purple-light);border:1px solid var(--purple-border);border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:var(--purple);line-height:1.6;}
+  .did-you-know strong{font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:4px;}
+  .remember-box{background:var(--paper-warm);border-left:3px solid var(--ink-mid);border-radius:0 6px 6px 0;padding:11px 15px;margin-bottom:16px;font-size:13.5px;color:var(--ink-mid);line-height:1.6;}
+  .remember-box strong{color:var(--ink);}
+  .warn-box{background:#fff5f5;border:1px solid #f5c1c1;border-radius:6px;padding:11px 15px;margin-top:12px;font-size:13px;color:#a32d2d;line-height:1.55;}
+  .warn-box strong{font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:3px;}
+
+  /* SIZE RULE */
+  .size-rule-box{background:var(--ink);color:#fff;border-radius:8px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:20px;}
+  .size-rule-num{font-family:var(--font-head);font-size:42px;color:var(--accent-mid);line-height:1;white-space:nowrap;}
+  .size-rule-text{font-size:13.5px;line-height:1.6;}
+  .size-rule-text strong{color:var(--accent-mid);font-size:15px;}
+  .size-rule-text em{color:#aaa;font-size:12.5px;}
+
+  /* STEP BLOCKS */
+  .step{margin-bottom:36px;border:1px solid var(--border);border-radius:var(--radius);background:var(--paper-card);overflow:hidden;}
+  .step-header{display:flex;align-items:center;background:var(--ink);padding:14px 20px;}
+  .step-num{font-family:var(--font-head);font-size:13px;color:var(--accent-mid);font-weight:400;letter-spacing:0.06em;text-transform:uppercase;min-width:65px;}
+  .step-title{font-family:var(--font-head);font-size:19px;color:#fff;font-weight:400;}
+  .step-title span{color:var(--accent-mid);}
+  .step-body{padding:20px 24px;}
+
+  .your-turn-label{font-size:10.5px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:16px;padding-bottom:6px;border-bottom:1.5px solid var(--accent-light);}
+  .field-group{margin-bottom:18px;}
+  .field-label{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px;display:block;}
+  .field-hint{font-size:12px;color:var(--ink-light);font-style:italic;margin-bottom:6px;display:block;}
+
+  input[type="text"],textarea{width:100%;border:1px solid var(--border);border-radius:6px;background:var(--paper);font-family:var(--font-body);font-size:14px;color:var(--ink);padding:8px 12px;outline:none;transition:border-color 0.15s;resize:vertical;}
+  input[type="text"]:focus,textarea:focus{border-color:var(--accent);background:#fff;}
+  textarea{min-height:60px;}
+
+  /* MATERIAL CATEGORIES */
+  .mat-category{border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:10px;}
+  .mat-cat-header{background:var(--paper-warm);padding:8px 14px;font-size:12px;font-weight:600;color:var(--ink-mid);letter-spacing:0.04em;border-bottom:1px solid var(--border);}
+  .mat-cat-body{padding:10px 14px;display:flex;flex-wrap:wrap;gap:6px;}
+  .mat-pill{background:var(--paper);border:1px solid var(--border);border-radius:20px;padding:3px 12px;font-size:12.5px;color:var(--ink-mid);}
+  .mat-pill em{color:var(--ink-light);font-style:italic;font-size:11.5px;}
+
+  /* CHECKLIST */
+  .check-list{display:flex;flex-direction:column;gap:7px;}
+  .check-item-row{display:flex;align-items:flex-start;gap:10px;font-size:13.5px;cursor:pointer;padding:9px 13px;border:1px solid var(--border);border-radius:6px;background:var(--paper-warm);user-select:none;transition:all 0.12s;}
+  .check-item-row:has(input:checked){background:var(--teal-light);border-color:var(--teal-border);color:var(--teal);}
+  .check-item-row input[type="checkbox"]{width:16px;height:16px;accent-color:var(--teal);cursor:pointer;flex-shrink:0;margin-top:1px;}
+
+  /* NUMBERED STEPS */
+  .numbered-steps{display:flex;flex-direction:column;gap:10px;margin-bottom:4px;}
+  .num-step{display:flex;align-items:flex-start;gap:12px;}
+  .num-badge{width:26px;height:26px;border-radius:50%;background:var(--ink);color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+  .num-step-text{font-size:13.5px;color:var(--ink-mid);line-height:1.55;padding-top:3px;}
+
+  /* PARTS TABLE */
+  .parts-table{width:100%;border-collapse:collapse;font-size:13.5px;margin-bottom:4px;}
+  .parts-table th{background:var(--ink);color:#fff;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:9px 12px;text-align:left;}
+  .parts-table th:first-child{border-radius:6px 0 0 0;}
+  .parts-table th:last-child{border-radius:0 6px 0 0;}
+  .parts-table td{border:1px solid var(--border);padding:2px 4px;background:var(--paper);vertical-align:middle;}
+  .parts-table tr:last-child td:first-child{border-radius:0 0 0 6px;}
+  .parts-table tr:last-child td:last-child{border-radius:0 0 6px 0;}
+  .parts-table input[type="text"]{border:none;background:transparent;font-size:13.5px;padding:7px 8px;}
+  .parts-table input[type="text"]:focus{background:#fff;box-shadow:0 0 0 2px var(--accent-mid);border-radius:4px;}
+  .parts-table select{border:none;background:transparent;font-family:var(--font-body);font-size:13px;color:var(--ink);padding:7px 8px;outline:none;width:100%;cursor:pointer;}
+  .parts-table select:focus{background:#fff;box-shadow:0 0 0 2px var(--accent-mid);border-radius:4px;}
+
+  /* PART GUIDE CARDS */
+  .part-guide{border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:14px;}
+  .part-guide-header{display:flex;align-items:center;gap:12px;padding:11px 16px;background:var(--paper-warm);border-bottom:1px solid var(--border);}
+  .part-letter{width:30px;height:30px;border-radius:50%;background:var(--ink);color:#fff;font-family:var(--font-head);font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .part-letter.feature{background:var(--accent);}
+  .part-letter.optional{background:var(--ink-light);}
+  .part-guide-title{font-size:14px;font-weight:600;color:var(--ink);}
+  .part-guide-subtitle{font-size:12px;color:var(--ink-light);}
+  .part-guide-body{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+  .part-guide-cell{padding:9px 14px;font-size:13px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);line-height:1.5;}
+  .part-guide-cell:nth-child(even){border-right:none;}
+  .part-guide-cell.label{font-weight:600;color:var(--ink-mid);font-size:11.5px;text-transform:uppercase;letter-spacing:0.06em;background:var(--paper-warm);min-width:90px;}
+  .part-guide-cell.value{color:var(--ink);background:var(--paper);}
+  .part-guide-cell.full-width{grid-column:1/-1;border-right:none;}
+  .part-guide-body>.part-guide-cell:nth-last-child(-n+2){border-bottom:none;}
+  .part-guide-input{padding:10px 14px;border-top:1px solid var(--border);}
+  .part-guide-input label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-light);display:block;margin-bottom:5px;}
+  .part-guide-input textarea{min-height:52px;font-size:13.5px;}
+  .part-guide.feature-card{border-color:var(--accent-mid);}
+  .part-guide.feature-card .part-guide-header{background:var(--accent-light);border-bottom-color:var(--accent-mid);}
+
+  /* USER AREA FEATURE EXAMPLES */
+  .area-feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+  .area-feature-card{background:var(--paper-warm);border:1px solid var(--border);border-radius:6px;padding:10px 12px;}
+  .area-feature-card-name{font-size:10.5px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;}
+  .area-feature-card-desc{font-size:12.5px;color:var(--ink-mid);line-height:1.5;}
+
+  /* TECHNIQUES TABLE */
+  .techniques-table{width:100%;border-collapse:collapse;font-size:13.5px;margin-bottom:12px;}
+  .techniques-table th{background:var(--ink);color:#fff;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:9px 12px;text-align:left;}
+  .techniques-table th:first-child{border-radius:6px 0 0 0;width:200px;}
+  .techniques-table th:last-child{border-radius:0 6px 0 0;}
+  .techniques-table td{border:1px solid var(--border);padding:10px 12px;vertical-align:top;line-height:1.55;font-size:13px;}
+  .techniques-table tr:last-child td:first-child{border-radius:0 0 0 6px;}
+  .techniques-table tr:last-child td:last-child{border-radius:0 0 6px 0;}
+  .techniques-table td.tech-name{background:var(--paper-warm);font-weight:600;color:var(--ink);font-size:13.5px;}
+  .tech-check{display:flex;align-items:center;gap:8px;margin-bottom:4px;cursor:pointer;}
+  .tech-check input[type="checkbox"]{width:15px;height:15px;accent-color:var(--accent);cursor:pointer;}
+
+  /* UPLOAD ZONES */
+  .upload-zone{border:2px dashed var(--border);border-radius:8px;background:var(--paper-warm);min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;position:relative;cursor:pointer;transition:border-color 0.15s,background 0.15s;margin-bottom:8px;overflow:hidden;}
+  .upload-zone:hover{border-color:var(--accent-mid);background:var(--accent-light);}
+  .upload-zone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;border:none;padding:0;}
+  .upload-zone-icon{font-size:28px;line-height:1;pointer-events:none;}
+  .upload-zone-text{font-size:13px;color:var(--ink-light);font-style:italic;text-align:center;pointer-events:none;}
+  .upload-zone-text strong{display:block;color:var(--accent);font-style:normal;font-size:13.5px;margin-bottom:2px;}
+  .upload-zone img{max-width:100%;max-height:400px;border-radius:6px;display:none;object-fit:contain;}
+  .upload-zone-hint{font-size:11px;color:var(--ink-light);text-align:center;margin-bottom:6px;}
+
+  .add-image-btn{display:inline-flex;align-items:center;gap:6px;margin-top:4px;margin-bottom:6px;background:none;border:1.5px dashed var(--accent-mid);border-radius:6px;padding:6px 14px;font-family:var(--font-body);font-size:12.5px;font-weight:600;color:var(--accent);cursor:pointer;transition:background 0.15s,border-color 0.15s;}
+  .add-image-btn:hover{background:var(--accent-light);border-color:var(--accent);}
+  .add-image-btn .plus-icon{font-size:15px;font-weight:700;line-height:1;}
+  .extra-upload-zone{border:2px dashed var(--border);border-radius:8px;background:var(--paper-warm);min-height:140px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;position:relative;cursor:pointer;transition:border-color 0.15s,background 0.15s;margin-top:8px;margin-bottom:4px;overflow:hidden;}
+  .extra-upload-zone:hover{border-color:var(--accent-mid);background:var(--accent-light);}
+  .extra-upload-zone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+  .extra-upload-zone .upload-zone-icon{font-size:22px;line-height:1;pointer-events:none;}
+  .extra-upload-zone .upload-zone-text{font-size:12.5px;color:var(--ink-light);font-style:italic;text-align:center;pointer-events:none;}
+  .extra-upload-zone .upload-zone-text strong{display:block;color:var(--accent);font-style:normal;font-size:13px;margin-bottom:2px;}
+  .extra-upload-zone img{max-width:100%;max-height:320px;border-radius:6px;display:none;object-fit:contain;}
+
+  /* CHECKLIST GROUPS */
+  .checklist-group{border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:12px;}
+  .checklist-group-header{background:var(--ink);padding:9px 16px;font-size:12px;font-weight:600;color:#fff;letter-spacing:0.06em;text-transform:uppercase;}
+  .checklist-group-body{padding:12px 14px;display:flex;flex-direction:column;gap:7px;}
+
+  .divider{height:1px;background:var(--border);margin:20px 0;}
+  .download-bar{position:sticky;bottom:0;background:var(--ink);padding:14px 32px;display:flex;align-items:center;justify-content:space-between;z-index:10;margin:40px -32px -60px;}
+  .download-bar p{color:#aaa;font-size:13px;}
+  .download-bar span{color:#fff;font-weight:500;}
+  .btn-download{background:var(--accent);color:#fff;border:none;border-radius:7px;padding:10px 24px;font-family:var(--font-body);font-size:14px;font-weight:600;cursor:pointer;letter-spacing:0.02em;transition:background 0.15s;}
+  .btn-download:hover{background:#c4432e;}
+  .footer{background:#3a3a3a;padding:14px 32px;display:flex;align-items:center;justify-content:center;}
+  .footer span{font-family:var(--font-body);font-size:13px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent);}
+
+  @media(max-width:620px){.page{padding:24px 16px 60px;}.header-top-row{grid-template-columns:1fr;}.size-rule-box{flex-direction:column;gap:8px;}.area-feature-grid{grid-template-columns:1fr;}.part-guide-body{grid-template-columns:1fr;}.part-guide-cell:nth-child(even){border-right:none;}.download-bar{margin:40px -16px -60px;padding:14px 16px;}}
+</style>
+</head>
+<body>
+<div id="progress-bar-wrap"><div id="progressFill"></div></div>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-badge-row"><span class="header-badge">Individual Build Manual</span></div>
+    <div class="header-title">Build Your <span>Delivery Robot</span> Parts</div>
+    <div class="header-subtitle">Your personal homework build guide research it, plan it, build it.</div>
+    <div style="height:16px;"></div>
+    <div class="header-top-row" style="margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--border);">
+      <div class="meta-field"><label for="meta-name">Your Name</label><input type="text" id="meta-name" placeholder="Your full name" data-track="true"></div>
+      <div class="meta-field"><label for="meta-group">Group ID</label><input type="text" id="meta-group" placeholder="Your group name or ID" data-track="true"></div>
+    </div>
+    <div class="header-top-row" style="margin-bottom:0;">
+      <div class="meta-field"><label for="meta-date">Date</label><input type="text" id="meta-date" data-track="true"></div>
+      <div class="meta-field"><label for="meta-area">Deployment Area</label><input type="text" id="meta-area" placeholder="e.g. Hospital" data-track="true"></div>
+    </div>
+  </div>
+
+  <!-- INTRO -->
+  <div class="intro-box">
+    <strong>What is this manual for?</strong>
+    In your next design class you will assemble your delivery robot together with your group. Before that class, your job is to build your assigned part at home. This manual tells you exactly what to make, what size, what materials to use, and how to prepare for class.
+    <br><br>
+    <strong>You will NOT assemble the robot at home.</strong> Build your part, label it, bag it. Assembly happens in class.
+  </div>
+
+  <div class="one-rule-box">
+    <div class="title">Before you start The ONE Rule</div>
+    <p class="rule-main">Every part you make must connect to your problem statement.</p>
+    <p>Open your Worksheet 1 right now to your problem statement. Before you make every single part, ask yourself: <strong style="color:var(--accent-mid)">How does this part help the users in my specific deployment area?</strong></p>
+    <p class="rule-sub" style="margin-top:8px;">If you cannot answer that stop. Go back to your sketch. Redesign the part so it actually solves the real problem.</p>
+  </div>
+
+  <div class="did-you-know">
+    <strong>Did you know?</strong>
+    Real delivery robots like Starship went through over 100 design versions before working on real pavements. Hospital robots like TUG navigated 40 different corridor layouts before deployment. Your first version does not need to be perfect. It just needs to exist and connect to your user's problem.
+  </div>
+
+  <div class="size-rule-box">
+    <div class="size-rule-num">40 cm</div>
+    <div class="size-rule-text">
+      <strong>Maximum 40 cm tall x wide x long</strong><br>
+      No single dimension of your robot may exceed 40 cm.<br>
+      <em>If you put your robot in a box, that box must be 40 x 40 x 40 cm or smaller.</em>
+    </div>
+  </div>
+
+  <!-- STEP 1: YOUR PART -->
+  <div class="step">
+    <div class="step-header">
+      <span class="step-num">Step 1</span>
+      <span class="step-title"><span>Your Part</span> What Are You Building?</span>
+    </div>
+    <div class="step-body">
+      <div class="remember-box"><strong>Remember:</strong> Your group divided the build at the end of class. This step confirms exactly what you are responsible for. Read it carefully before you touch any materials.</div>
+      <div class="your-turn-label">Your Turn</div>
+      <div class="field-group">
+        <label class="field-label">Which part(s) of the robot are you building?</label>
+        <textarea id="my-part" placeholder="e.g. I am building the main chassis body and the cargo compartment hatch. The hatch must open at low height for wheelchair users." data-track="true" style="min-height:80px;"></textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label">What materials are you bringing to class?</label>
+        <textarea id="my-materials" placeholder="List the materials you agreed to gather at home…" data-track="true" style="min-height:60px;"></textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label">How does your part connect to the group's problem statement and deployment area users?</label>
+        <textarea id="my-spec" placeholder="e.g. The low hatch directly solves the problem for wheelchair users in our mall they cannot reach a standard height opening…" data-track="true" style="min-height:72px;"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2: MATERIALS -->
+  <div class="step">
+    <div class="step-header">
+      <span class="step-num">Step 2</span>
+      <span class="step-title"><span>Materials</span> What You Can Use</span>
+    </div>
+    <div class="step-body">
+      <p style="font-size:13.5px;color:var(--ink-mid);margin-bottom:16px;">You can use anything you find at home. Here are ideas but you are not limited to this list. The best prototypes use creative substitutions.</p>
+
+      <div class="mat-category">
+        <div class="mat-cat-header">Structure and Body for the main chassis and body panels</div>
+        <div class="mat-cat-body">
+          <span class="mat-pill">Corrugated cardboard <em>(delivery boxes)</em></span>
+          <span class="mat-pill">Cardboard tubes <em>(toilet roll, kitchen roll)</em></span>
+          <span class="mat-pill">Plastic bottles <em>(330ml or 500ml)</em></span>
+          <span class="mat-pill">Plastic boxes or containers <em>(food storage, lunch boxes)</em></span>
+          <span class="mat-pill">Foam board</span>
+          <span class="mat-pill">Shoebox or small box</span>
+          <span class="mat-pill">Thick paper / newspaper rolls</span>
+          <span class="mat-pill">Ice cream sticks / lolly sticks</span>
+        </div>
+      </div>
+      <div class="mat-category">
+        <div class="mat-cat-header">Joining and Strengthening</div>
+        <div class="mat-cat-body">
+          <span class="mat-pill">Masking tape</span>
+          <span class="mat-pill">Clear or packing tape</span>
+          <span class="mat-pill">PVA or white craft glue</span>
+          <span class="mat-pill">Hot glue gun</span>
+          <span class="mat-pill">String or rubber bands</span>
+          <span class="mat-pill">Velcro strips</span>
+          <span class="mat-pill">Brass paper fasteners</span>
+        </div>
+      </div>
+      <div class="mat-category">
+        <div class="mat-cat-header">Sensors, Features and Cargo</div>
+        <div class="mat-cat-body">
+          <span class="mat-pill">Ping pong balls <em>(sensor domes)</em></span>
+          <span class="mat-pill">LED fairy lights</span>
+          <span class="mat-pill">Small mirror or kitchen foil <em>(camera lens)</em></span>
+          <span class="mat-pill">Pipe cleaners</span>
+          <span class="mat-pill">Foam offcuts <em>(cargo lining)</em></span>
+          <span class="mat-pill">Plastic or zip-lock bag <em>(waterproof compartment)</em></span>
+          <span class="mat-pill">Small hinge <em>(opening door or flap)</em></span>
+          <span class="mat-pill">Buttons from old toys <em>(audio or alert button)</em></span>
+          <span class="mat-pill">Bottle caps painted black <em>(camera)</em></span>
+        </div>
+      </div>
+      <div class="mat-category">
+        <div class="mat-cat-header">Decorative and Expressive to show design intent</div>
+        <div class="mat-cat-body">
+          <span class="mat-pill">Paint <em>(acrylic or watercolour)</em></span>
+          <span class="mat-pill">Coloured paper or cardstock</span>
+          <span class="mat-pill">Stickers or washi tape</span>
+          <span class="mat-pill">Markers and pens</span>
+          <span class="mat-pill">Felt or fabric scraps</span>
+          <span class="mat-pill">Tissue paper</span>
+          <span class="mat-pill">Glitter <em>(use sparingly!)</em></span>
+        </div>
+      </div>
+      <div class="mat-category">
+        <div class="mat-cat-header">Area-Specific Ideas depending on your deployment area</div>
+        <div class="mat-cat-body">
+          <span class="mat-pill">Miniature traffic cones <em>(city streets)</em></span>
+          <span class="mat-pill">Red and green card circles <em>(traffic signals)</em></span>
+          <span class="mat-pill">Red cross symbol <em>(hospital)</em></span>
+          <span class="mat-pill">Room number labels <em>(hotel)</em></span>
+          <span class="mat-pill">School logo sticker <em>(school campus)</em></span>
+          <span class="mat-pill">Intercom button <em>(residential society)</em></span>
+          <span class="mat-pill">Ramp or slope piece <em>(accessibility)</em></span>
+        </div>
+      </div>
+      <div class="remember-box" style="margin-top:14px;"><strong>Remember:</strong> If you cannot find the exact material substitute. A milk bottle cap works like a bought wheel. Newspaper rolled into a tube works like a cardboard tube. The material does not need to be perfect. The idea behind it does.</div>
+    </div>
+  </div>
+
+  <!-- STEP 3: REVIEW SKETCH -->
+  <div class="step">
+    <div class="step-header">
+      <span class="step-num">Step 3</span>
+      <span class="step-title"><span>Review</span> Your Sketch Before You Build</span>
+    </div>
+    <div class="step-body">
+      <p style="font-size:13.5px;color:var(--ink-mid);margin-bottom:18px;">Do this BEFORE you touch any material. It saves time and prevents wasted effort.</p>
+      <div class="numbered-steps" style="margin-bottom:24px;">
+        <div class="num-step"><span class="num-badge">1</span><p class="num-step-text">Open Worksheet 1 to your group's final sketch and problem statement.</p></div>
+        <div class="num-step"><span class="num-badge">2</span><p class="num-step-text">Look at your assigned parts. Write a list of everything you need to make. Count them.</p></div>
+        <div class="num-step"><span class="num-badge">3</span><p class="num-step-text">For each part, decide: what material will I use? What rough size should it be?</p></div>
+        <div class="num-step"><span class="num-badge">4</span><p class="num-step-text">Circle your most important part the one that directly solves your user's problem. Build this first.</p></div>
+        <div class="num-step"><span class="num-badge">5</span><p class="num-step-text">Ask yourself: how does each part connect to the users in our deployment area?</p></div>
+      </div>
+      <div class="your-turn-label">Your Turn Parts List</div>
+      <div class="field-group">
+        <label class="field-label">Fill in your parts list before you start building:</label>
+        <table class="parts-table">
+          <thead><tr><th style="width:30%">Part name</th><th style="width:28%">Material I will use</th><th style="width:22%">Rough size</th><th style="width:20%">Is this my FEATURE?</th></tr></thead>
+          <tbody>
+            <tr><td><input type="text" id="pt1-name" placeholder="Part name…" data-track="true"></td><td><input type="text" id="pt1-mat" placeholder="Material…" data-track="true"></td><td><input type="text" id="pt1-size" placeholder="e.g. 20x10 cm" data-track="true"></td><td><select id="pt1-feat" data-track="true"><option value=""> </option><option value="yes">Yes FEATURE</option><option value="no">No</option></select></td></tr>
+            <tr><td><input type="text" id="pt2-name" placeholder="Part name…" data-track="true"></td><td><input type="text" id="pt2-mat" placeholder="Material…" data-track="true"></td><td><input type="text" id="pt2-size" placeholder="" data-track="true"></td><td><select id="pt2-feat" data-track="true"><option value=""> </option><option value="yes">Yes FEATURE</option><option value="no">No</option></select></td></tr>
+            <tr><td><input type="text" id="pt3-name" placeholder="Part name…" data-track="true"></td><td><input type="text" id="pt3-mat" placeholder="Material…" data-track="true"></td><td><input type="text" id="pt3-size" placeholder="" data-track="true"></td><td><select id="pt3-feat" data-track="true"><option value=""> </option><option value="yes">Yes FEATURE</option><option value="no">No</option></select></td></tr>
+            <tr><td><input type="text" id="pt4-name" placeholder="Part name…" data-track="true"></td><td><input type="text" id="pt4-mat" placeholder="Material…" data-track="true"></td><td><input type="text" id="pt4-size" placeholder="" data-track="true"></td><td><select id="pt4-feat" data-track="true"><option value=""> </option><option value="yes">Yes FEATURE</option><option value="no">No</option></select></td></tr>
+            <tr><td><input type="text" id="pt5-name" placeholder="Part name…" data-track="true"></td><td><input type="text" id="pt5-mat" placeholder="Material…" data-track="true"></td><td><input type="text" id="pt5-size" placeholder="" data-track="true"></td><td><select id="pt5-feat" data-track="true"><option value=""> </option><option value="yes">Yes FEATURE</option><option value="no">No</option></select></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4: BUILD PART GUIDES -->
+  <div class="step">
+    <div class="step-header">
+      <span class="step-num">Step 4</span>
+      <span class="step-title"><span>Build</span> Your Parts Part by Part Guide</span>
+    </div>
+    <div class="step-body">
+      <p style="font-size:13.5px;color:var(--ink-mid);margin-bottom:20px;">Use these guides for each part. You only need the parts that are in your sketch and your assigned role.</p>
+
+      <!-- Part A -->
+      <div class="part-guide">
+        <div class="part-guide-header"><div class="part-letter">A</div><div><div class="part-guide-title">The Robot Body (Main Chassis)</div><div class="part-guide-subtitle">Build this first everything attaches to it</div></div></div>
+        <div class="part-guide-body">
+          <div class="part-guide-cell label">What it is</div><div class="part-guide-cell value">The central box or cylinder that holds all other parts. This is the first thing anyone in your deployment area sees when the robot approaches.</div>
+          <div class="part-guide-cell label">Max size</div><div class="part-guide-cell value">Max 25 cm tall x 20 cm wide x 20 cm deep. Must leave room for wheels below and feature on top or side.</div>
+          <div class="part-guide-cell label">Material ideas</div><div class="part-guide-cell value">Shoebox (easiest). Plastic storage box. Cardboard folded into a box. Plastic bottle with label removed. Foam board panels.</div>
+          <div class="part-guide-cell label full-width" style="border-bottom:1px solid var(--border);">How to make it</div>
+          <div class="part-guide-cell value full-width">If using a shoebox: cover with plain card. If folding card: score fold lines with a ruler and blunt pencil first. Reinforce inside corners with small cardboard triangles.</div>
+        </div>
+        <div class="part-guide-input"><label>My notes for Part A:</label><textarea id="notes-partA" placeholder="Notes on your body or chassis, changes from sketch…" data-track="true"></textarea></div>
+      </div>
+
+      <!-- Part C -->
+      <div class="part-guide">
+        <div class="part-guide-header"><div class="part-letter">C</div><div><div class="part-guide-title">Cargo Compartment</div><div class="part-guide-subtitle">Where food, packages, medicine, or items are stored</div></div></div>
+        <div class="part-guide-body">
+          <div class="part-guide-cell label">What it is</div><div class="part-guide-cell value">The section where deliveries are stored. Depending on your deployment area, this might need to open easily, keep things cold, be sterile, or be easy to unlock without bending down.</div>
+          <div class="part-guide-cell label">Max size</div><div class="part-guide-cell value">Max 15 x 15 x 15 cm. Must fit inside or on top of the body.</div>
+          <div class="part-guide-cell label">Material ideas</div><div class="part-guide-cell value">Small box inside the main body. Zip-lock bag glued inside. Foam lined container. Divided compartment using cardboard walls inside a plastic box.</div>
+          <div class="part-guide-cell label full-width" style="border-bottom:1px solid var(--border);">How to make it</div>
+          <div class="part-guide-cell value full-width">Cut a rectangular flap in the front of the body and fold it forward to make a door. Use masking tape as a hinge. Line the inside with foam if designing for fragile or medical deliveries.</div>
+        </div>
+        <div class="part-guide-input"><label>My notes for Part C:</label><textarea id="notes-partC" placeholder="Notes on cargo compartment, how it opens, what it carries…" data-track="true"></textarea></div>
+      </div>
+
+      <!-- Part D FEATURE -->
+      <div class="part-guide feature-card">
+        <div class="part-guide-header"><div class="part-letter feature">D</div><div><div class="part-guide-title">Your User-Specific Feature</div><div class="part-guide-subtitle">The most important part it directly solves your problem statement</div></div></div>
+        <div class="part-guide-body">
+          <div class="part-guide-cell value full-width" style="border-bottom:1px solid var(--border);background:var(--accent-light);color:var(--ink);"><strong>This part makes your robot different.</strong> It directly addresses the specific users in your deployment area. Below are examples by area but design YOUR feature from YOUR problem statement, not from this list.</div>
+        </div>
+        <div class="area-feature-grid" style="padding:12px 14px 0;background:var(--accent-light);">
+          <div class="area-feature-card"><div class="area-feature-card-name">Mall</div><div class="area-feature-card-desc">Wide base for stability in crowds. Child-safe panels with no sharp edges. Screen at standing adult height.</div></div>
+          <div class="area-feature-card"><div class="area-feature-card-name">Hotel</div><div class="area-feature-card-desc">Silent operation indicator. Multilingual screen panel. Discreet colouring to blend with hotel interiors.</div></div>
+          <div class="area-feature-card"><div class="area-feature-card-name">School Campus</div><div class="area-feature-card-desc">Fun or friendly exterior. Locked compartment students cannot open without a code. Loud alert signal for noisy corridors.</div></div>
+          <div class="area-feature-card"><div class="area-feature-card-name">Residential Society</div><div class="area-feature-card-desc">Intercom buzzer. Height-adjustable hatch for elderly. Rain cover for outdoor use.</div></div>
+          <div class="area-feature-card"><div class="area-feature-card-name">Hospital</div><div class="area-feature-card-desc">Hatch at bed-reach height (30 cm from floor). No touch door sensor. Sterile white finish. Red cross marking.</div></div>
+          <div class="area-feature-card"><div class="area-feature-card-name">City Streets</div><div class="area-feature-card-desc">Flashing light at pedestrian crossing. Wide wheels for kerbs and uneven pavements. Weatherproof cover.</div></div>
+        </div>
+        <div class="part-guide-input" style="background:var(--accent-light);border-top:1px solid var(--accent-mid);">
+          <label style="color:var(--accent);">My user-specific feature what it does and how it helps the users in my deployment area:</label>
+          <textarea id="notes-partD" placeholder="Describe your feature, how it works, and specifically how it helps the users you identified in Worksheet 1…" data-track="true" style="min-height:80px;"></textarea>
+        </div>
+      </div>
+
+      <!-- Part E -->
+      <div class="part-guide">
+        <div class="part-guide-header"><div class="part-letter optional">E</div><div><div class="part-guide-title">Sensors and Safety Indicators</div><div class="part-guide-subtitle">Optional but recommended they do not need to work</div></div></div>
+        <div class="part-guide-body">
+          <div class="part-guide-cell label">What it is</div><div class="part-guide-cell value">Small elements representing cameras, distance sensors, or warning lights. They represent the function, not perform it.</div>
+          <div class="part-guide-cell label">Max size</div><div class="part-guide-cell value">Each sensor element: max 4 cm diameter. Place at front, back, or sides.</div>
+          <div class="part-guide-cell label">Material ideas</div><div class="part-guide-cell value">Ping pong ball halves. Foil circles. Button cells from old toys. LED fairy lights. Coloured stickers. Bottle caps painted black.</div>
+          <div class="part-guide-cell label full-width" style="border-bottom:1px solid var(--border);">How to make it</div>
+          <div class="part-guide-cell value full-width">Attach sensor domes to the front face using tape or glue. Label each one: "Distance sensor", "Camera", "Obstacle detector". If using lights, tape the battery pack inside and thread the wire to the sensor position.</div>
+        </div>
+        <div class="part-guide-input"><label>My notes for Part E:</label><textarea id="notes-partE" placeholder="Notes on sensors and indicators you will include…" data-track="true"></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 5: MAKE PARTS STRONG -->
+  <div class="step">
+    <div class="step-header">
+      <span class="step-num">Step 5</span>
+      <span class="step-title"><span>Make</span> Your Parts Strong</span>
+    </div>
+    <div class="step-body">
+      <p style="font-size:13.5px;color:var(--ink-mid);margin-bottom:18px;">A delivery robot that collapses in a hospital corridor or falls apart in a school hallway is useless. Use at least two of the three techniques below.</p>
+      <table class="techniques-table">
+        <thead><tr><th>Technique</th><th>How to do it and where to use it</th></tr></thead>
+        <tbody>
+          <tr><td class="tech-name"><label class="tech-check"><input type="checkbox" id="tech1" data-track="true"> Technique 1 The Cardboard Tube</label></td><td>Roll a strip of cardboard tightly around a pencil. Tape the edge. Slide out the pencil. Press down much stronger than flat card. Use for legs, support columns, and the robot body frame.</td></tr>
+          <tr><td class="tech-name"><label class="tech-check"><input type="checkbox" id="tech2" data-track="true"> Technique 2 The L-Beam</label></td><td>Fold a strip of cardboard at 90 degrees (score the fold line with a ruler first). The L-shape resists bending. Use for wall panels, doorframes, and hatch edges.</td></tr>
+          <tr><td class="tech-name"><label class="tech-check"><input type="checkbox" id="tech3" data-track="true"> Technique 3 The Triangle Brace</label></td><td>Cut a small right-angle triangle from cardboard and glue it into any corner where two panels meet. Triangles cannot be squashed sideways. Use at every corner of the robot body.</td></tr>
+        </tbody>
+      </table>
+      <div class="warn-box"><strong>Watch out</strong>Do NOT use tape as the only thing holding a joint together. Tape stretches under weight. Use tape to hold pieces in position while glue dries then glue becomes the actual joint.</div>
+      <div class="field-group" style="margin-top:18px;">
+        <label class="field-label">Which techniques will you use, and where on your part?</label>
+        <textarea id="techniques-notes" placeholder="e.g. Triangle braces at all four body corners, cardboard tubes for the legs and axle mounts…" data-track="true"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 6: BUILD LOG -->
+  <div class="step">
+    <div class="step-header">
+      <span class="step-num">Step 6</span>
+      <span class="step-title"><span>Build Log</span> Document Your Progress</span>
+    </div>
+    <div class="step-body">
+      <div class="remember-box"><strong>Remember:</strong> Take photos as you build. A photo of each piece before assembly, and one of each stage. These are your evidence and will help you answer the testing questions in class.</div>
+      <div class="your-turn-label">Your Turn tick off and document as you go</div>
+
+      <div class="field-group">
+        <label class="field-label">Session 1 Build the structure</label>
+        <div class="check-list" style="margin-bottom:10px;">
+          <label class="check-item-row"><input type="checkbox" id="s1a" data-track="true"> Gathered all materials and tools</label>
+          <label class="check-item-row"><input type="checkbox" id="s1b" data-track="true"> Cut all pieces to planned dimensions</label>
+          <label class="check-item-row"><input type="checkbox" id="s1c" data-track="true"> Built the main chassis or structural pieces</label>
+          <label class="check-item-row"><input type="checkbox" id="s1d" data-track="true"> Took a photo of pieces before assembly</label>
+        </div>
+        <textarea id="s1-notes" placeholder="Session 1 notes what did you do, any problems or decisions…" data-track="true" style="min-height:56px;"></textarea>
+        <div style="margin-top:8px;" id="extra-zones-s1"></div>
+        <button type="button" class="add-image-btn" onclick="addExtraZone('s1')"><span class="plus-icon">+</span> Add a photo</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="field-group">
+        <label class="field-label">Session 2 Build the user-specific feature and join parts</label>
+        <div class="check-list" style="margin-bottom:10px;">
+          <label class="check-item-row"><input type="checkbox" id="s2a" data-track="true"> Built the user-specific feature (Part D)</label>
+          <label class="check-item-row"><input type="checkbox" id="s2b" data-track="true"> Attached wheels and other structural components</label>
+          <label class="check-item-row"><input type="checkbox" id="s2c" data-track="true"> Added triangle braces or L-beams at weak joints</label>
+          <label class="check-item-row"><input type="checkbox" id="s2d" data-track="true"> Took a photo of assembled structure</label>
+        </div>
+        <textarea id="s2-notes" placeholder="Session 2 notes…" data-track="true" style="min-height:56px;"></textarea>
+        <div style="margin-top:8px;" id="extra-zones-s2"></div>
+        <button type="button" class="add-image-btn" onclick="addExtraZone('s2')"><span class="plus-icon">+</span> Add a photo</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="field-group">
+        <label class="field-label">Session 3 Finish, decorate, and label</label>
+        <div class="check-list" style="margin-bottom:10px;">
+          <label class="check-item-row"><input type="checkbox" id="s3a" data-track="true"> Applied decorative or expressive finish relevant to my area</label>
+          <label class="check-item-row"><input type="checkbox" id="s3b" data-track="true"> Added sensors or indicators (Part E)</label>
+          <label class="check-item-row"><input type="checkbox" id="s3c" data-track="true"> Labelled every part with name and design influence</label>
+          <label class="check-item-row"><input type="checkbox" id="s3d" data-track="true"> Parts are separate, unassembled, and ready to bag</label>
+        </div>
+        <textarea id="s3-notes" placeholder="Session 3 notes…" data-track="true" style="min-height:56px;"></textarea>
+        <div style="margin-top:10px;">
+          <label class="field-label">Final photo of my completed part(s):</label>
+          <div class="upload-zone" id="zone-final-build">
+            <div class="upload-zone-icon">📷</div>
+            <div class="upload-zone-text"><strong>Click to upload a photo of your finished part</strong>Multiple angles are ideal</div>
+            <input type="file" id="upload-final-build" accept="image/*" onchange="handleUpload('upload-final-build','zone-final-build','img-final-build')" data-track="true">
+            <img id="img-final-build" alt="Final build photo">
+          </div>
+          <p class="upload-zone-hint">JPG or PNG image saved inside the HTML when you download</p>
+          <div id="extra-zones-final-build"></div>
+          <button type="button" class="add-image-btn" onclick="addExtraZone('final-build')"><span class="plus-icon">+</span> Add another photo</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 7: LABEL AND FINAL CHECK -->
+  <div class="step">
+    <div class="step-header">
+      <span class="step-num">Step 7</span>
+      <span class="step-title"><span>Label</span> and Final Check Before You Bag</span>
+    </div>
+    <div class="step-body">
+      <p style="font-size:13.5px;color:var(--ink-mid);margin-bottom:18px;">This is the step most students skip. Do not skip it. In class your teacher will check each part against your sketch. Unlabelled parts waste everyone's time.</p>
+      <div class="numbered-steps" style="margin-bottom:20px;">
+        <div class="num-step"><span class="num-badge">1</span><p class="num-step-text">Tear off a small piece of masking tape and stick it onto each part.</p></div>
+        <div class="num-step"><span class="num-badge">2</span><p class="num-step-text">Write the part name in pencil (e.g. "Front wheel left side").</p></div>
+        <div class="num-step"><span class="num-badge">3</span><p class="num-step-text">Below that, write the design influence it addresses (e.g. "Inclusivity" or "Safety").</p></div>
+        <div class="num-step"><span class="num-badge">4</span><p class="num-step-text">On your FEATURE part, also write: "This helps [specific user] in [your area] because…" in 7 words or less.</p></div>
+      </div>
+      <div class="checklist-group">
+        <div class="checklist-group-header">Part Completeness</div>
+        <div class="checklist-group-body">
+          <label class="check-item-row"><input type="checkbox" id="fc1" data-track="true"> Every part from my sketch exists as a physical object</label>
+          <label class="check-item-row"><input type="checkbox" id="fc2" data-track="true"> My user-specific feature (Part D) is the most complete and well-made part</label>
+          <label class="check-item-row"><input type="checkbox" id="fc3" data-track="true"> Every part has a masking tape label with its name and design influence</label>
+          <label class="check-item-row"><input type="checkbox" id="fc4" data-track="true"> No single part exceeds 40 cm in any direction</label>
+          <label class="check-item-row"><input type="checkbox" id="fc5" data-track="true"> Parts are separate and unassembled ready for in-class assembly</label>
+        </div>
+      </div>
+      <div class="checklist-group">
+        <div class="checklist-group-header">Design Connection</div>
+        <div class="checklist-group-body">
+          <label class="check-item-row"><input type="checkbox" id="dc1" data-track="true"> I can explain how each part connects to the group's problem statement</label>
+          <label class="check-item-row"><input type="checkbox" id="dc2" data-track="true"> My feature clearly addresses a specific user in our deployment area</label>
+          <label class="check-item-row"><input type="checkbox" id="dc3" data-track="true"> I looked at the Worksheet 1 sketch before making each part</label>
+          <label class="check-item-row"><input type="checkbox" id="dc4" data-track="true"> If any part changed from my sketch, I noted the change and why</label>
+        </div>
+      </div>
+      <div class="checklist-group">
+        <div class="checklist-group-header">What to Bring to Class</div>
+        <div class="checklist-group-body">
+          <label class="check-item-row"><input type="checkbox" id="wt1" data-track="true"> All parts in a bag or box labelled, separate, unassembled</label>
+          <label class="check-item-row"><input type="checkbox" id="wt2" data-track="true"> Worksheet 1 open to my problem statement and sketch</label>
+          <label class="check-item-row"><input type="checkbox" id="wt3" data-track="true"> Any leftover materials for gap-filling in class</label>
+          <label class="check-item-row"><input type="checkbox" id="wt4" data-track="true"> A pencil and some masking tape</label>
+        </div>
+      </div>
+      <div class="warn-box"><strong>Watch out</strong>If you arrive in class without your parts or without Worksheet 1, you cannot start assembling. You will use class time making parts from scratch much harder without your tools at home.</div>
+    </div>
+  </div>
+
+  <div class="download-bar">
+    <p><span>Delivery Robot Build Manual</span> School for Schools</p>
+    <button class="btn-download" onclick="downloadAnswers()">Save My Answers</button>
+  </div>
+</div>
+<div class="footer"><span>School for Schools</span></div>
+
+<script>
+  document.getElementById('meta-date').value = new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  const extraCounts={};
+  function addExtraZone(group){
+    if(!extraCounts[group])extraCounts[group]=0;extraCounts[group]++;
+    const idx=extraCounts[group];
+    const inputId='upload-extra-'+group+'-'+idx;const imgId='img-extra-'+group+'-'+idx;const zoneId='zone-extra-'+group+'-'+idx;
+    const zone=document.createElement('div');zone.className='extra-upload-zone';zone.id=zoneId;
+    zone.innerHTML='<div class="upload-zone-icon">📎</div><div class="upload-zone-text"><strong>Click to upload another image</strong>Photo or scan</div><input type="file" id="'+inputId+'" accept="image/*" data-track="true"><img id="'+imgId+'" alt="Extra image">';
+    document.getElementById('extra-zones-'+group).appendChild(zone);
+    document.getElementById(inputId).addEventListener('change',function(){handleExtraUpload(inputId,zoneId,imgId);});
+  }
+  function handleExtraUpload(inputId,zoneId,imgId){
+    const file=document.getElementById(inputId).files[0];if(!file)return;
+    const reader=new FileReader();reader.onload=function(e){const zone=document.getElementById(zoneId);const img=document.getElementById(imgId);img.src=e.target.result;img.style.display='block';zone.querySelector('.upload-zone-icon').style.display='none';zone.querySelector('.upload-zone-text').style.display='none';};
+    reader.readAsDataURL(file);updateProgress();
+  }
+  function handleUpload(inputId,zoneId,imgId){
+    const file=document.getElementById(inputId).files[0];if(!file)return;
+    const reader=new FileReader();reader.onload=function(e){const zone=document.getElementById(zoneId);const img=document.getElementById(imgId);img.src=e.target.result;img.style.display='block';zone.querySelector('.upload-zone-icon').style.display='none';zone.querySelector('.upload-zone-text').style.display='none';};
+    reader.readAsDataURL(file);updateProgress();
+  }
+  function updateProgress(){
+    const all=document.querySelectorAll('[data-track="true"]');let filled=0;
+    all.forEach(el=>{
+      if(el.type==='checkbox'){if(el.checked)filled++;}
+      else if(el.tagName==='SELECT'){if(el.value)filled++;}
+      else if(el.type==='file'){const imgId=el.id.startsWith('upload-extra-')?el.id.replace('upload-','img-'):el.id.replace('upload-','img-');const img=document.getElementById(imgId);if(img&&img.src&&img.src.startsWith('data:'))filled++;}
+      else if(el.value&&el.value.trim().length>1)filled++;
+    });
+    document.getElementById('progressFill').style.width=Math.round((filled/all.length)*100)+'%';
+  }
+  document.addEventListener('input',updateProgress);document.addEventListener('change',updateProgress);
+  function downloadAnswers(){
+    const clone=document.documentElement.cloneNode(true);
+    clone.querySelectorAll('input[type="text"],textarea').forEach(el=>{const live=document.getElementById(el.id);if(!live)return;el.tagName==='TEXTAREA'?el.textContent=live.value:el.setAttribute('value',live.value);});
+    clone.querySelectorAll('input[type="checkbox"]').forEach(el=>{const live=document.getElementById(el.id);if(!live)return;live.checked?el.setAttribute('checked','checked'):el.removeAttribute('checked');});
+    clone.querySelectorAll('select').forEach(el=>{const live=document.getElementById(el.id);if(!live)return;Array.from(el.options).forEach((opt,i)=>{if(live.options[i]&&live.options[i].selected)opt.setAttribute('selected','selected');else opt.removeAttribute('selected');});});
+    document.querySelectorAll('.upload-zone img,.extra-upload-zone img').forEach(liveImg=>{if(liveImg.src&&liveImg.src.startsWith('data:')&&liveImg.id){const c=clone.querySelector('#'+liveImg.id);if(c){c.setAttribute('src',liveImg.src);c.style.display='block';const z=c.closest('.upload-zone,.extra-upload-zone');if(z){const i=z.querySelector('.upload-zone-icon');const t=z.querySelector('.upload-zone-text');if(i)i.style.display='none';if(t)t.style.display='none';}}}});
+    clone.querySelector('.download-bar')?.remove();
+    const name=(document.getElementById('meta-name').value||'student').replace(/[^a-zA-Z0-9]/g,'-').toLowerCase();
+    const blob=new Blob(['<!DOCTYPE html>\n'+clone.outerHTML],{type:'text/html'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='delivery-robot-manual-'+name+'.html';a.click();URL.revokeObjectURL(a.href);
+  }
+</script>
+</body>
+</html>
